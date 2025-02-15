@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password Security Checker</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
+        input, button { padding: 10px; margin: 10px; }
+        #result { margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h2>Password Security Checker</h2>
+    <input type="text" id="passwordInput" placeholder="Enter your password">
+    <button onclick="checkPassword()">Check</button>
+
+    <div id="result"></div>
+
+    <script>
+        async function checkPassword() {
+            const password = document.getElementById("passwordInput").value;
+            if (!password) {
+                alert("Please enter a password!");
+                return;
+            }
+
+            const response = await fetch("http://127.0.0.1:5000/check_password", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ "password": password })
+            });
+
+            const data = await response.json();
+            document.getElementById("result").innerHTML = `
+                <p><strong>Strength Score:</strong> ${data.strength.score}/4</p>
+                <p><strong>Feedback:</strong> ${data.strength.feedback.suggestions || "Looks good!"}</p>
+                <p><strong>Policy Compliance:</strong> ${data.policy_compliance.message}</p>
+                <p><strong>Breached:</strong> ${data.breached ? "⚠️ Found in data breaches!" : "✅ Safe"}</p>
+            `;
+        }
+    </script>
+</body>
+</html>
